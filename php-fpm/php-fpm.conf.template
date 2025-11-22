@@ -1,0 +1,12 @@
+; PHP-FPM Configuration for Development Environment
+; Variables will be replaced by bash eval
+
+[global]
+error_log = ${PHP_FPM_RUNTIME_DIR}/php-fpm.log
+daemonize = no
+
+[${PHP_FPM_POOL_NAME}]
+listen = ${PHP_FPM_SOCKET_PATH}
+pm = ondemand
+pm.max_children = 5
+pm.process_idle_timeout = 10s

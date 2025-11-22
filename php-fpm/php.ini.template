@@ -1,0 +1,9 @@
+; PHP Configuration for Development Environment
+
+; .user.ini support (per-directory PHP configuration)
+user_ini.filename = ".user.ini"
+user_ini.cache_ttl = 0
+
+[xdebug]
+xdebug.mode = develop,debug
+xdebug.start_with_request = trigger
