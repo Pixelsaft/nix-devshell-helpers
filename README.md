@@ -43,7 +43,7 @@ Manages PHP-FPM lifecycle in development shells with automatic socket configurat
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-devshell-helpers = {
-      url = "github:timohubois/nix-devshell-helpers";
+      url = "github:pixelsaft/nix-devshell-helpers";
       flake = false;
     };
   };

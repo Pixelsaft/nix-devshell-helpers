@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-devshell-helpers = {
-      url = "github:timohubois/nix-devshell-helpers";
+      url = "github:pixelsaft/nix-devshell-helpers";
       flake = false;
     };
   };
