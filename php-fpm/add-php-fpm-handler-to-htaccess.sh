@@ -21,6 +21,6 @@ HTACCESS_TARGET="$(readlink -f "$PROJECT_HTACCESS_PATH")"
 sed -i '/# \[nix develop\] php-fpm socket handler/,/# \[nix develop\] php-fpm socket handler.*END/d' "$HTACCESS_TARGET"
 
 # Add new handler at the beginning
-sed -i "1i# [nix develop] php-fpm socket handler - temporary configuration\n<If \"-f '$PHP_FPM_SOCKET_PATH'\">\n  <FilesMatch \\\\.php$>\n    SetHandler \"proxy:unix:$PHP_FPM_SOCKET_PATH|fcgi://localhost\"\n  </FilesMatch>\n</If>\n# [nix develop] php-fpm socket handler END\n" "$HTACCESS_TARGET"
+sed -i "1i# [nix develop] php-fpm socket handler - temporary configuration\n<FilesMatch \\\\.php$>\n  SetHandler \"proxy:unix:$PHP_FPM_SOCKET_PATH|fcgi://localhost\"\n</FilesMatch>\n# [nix develop] php-fpm socket handler END\n" "$HTACCESS_TARGET"
 
 echo "Configured php-fpm socket handler inside $PROJECT_HTACCESS_PATH"
