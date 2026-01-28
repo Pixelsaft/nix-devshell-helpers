@@ -8,7 +8,7 @@ if [ -z "$PHP_FPM_BIN" ]; then
   else
     echo "ERROR: PHP_FPM_BIN not set and php-fpm not found in PATH"
     echo "Set PHP_FPM_BIN to your php-fpm binary path"
-    exit 1
+    return 1
   fi
 fi
 
@@ -69,7 +69,7 @@ done
 
 if [ ! -S "$PHP_FPM_SOCKET_PATH" ]; then
   echo "ERROR: Socket not created at $PHP_FPM_SOCKET_PATH"
-  exit 1
+  return 1
 fi
 
 echo "php-fpm socket location: $PHP_FPM_SOCKET_PATH"

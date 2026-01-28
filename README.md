@@ -6,6 +6,37 @@ Helper scripts and templates for Nix development shells.
 
 Copy [`flake.example.nix`](./flake.example.nix) to your project as `flake.nix` and run `nix develop`.
 
+## Multi-system support
+
+Hardcoding `x86_64-linux` limits portability. Use `nixpkgs.lib.genAttrs` for multi-system support:
+
+```nix
+outputs = { nixpkgs, nix-devshell-helpers, ... }: let
+  forAllSystems = nixpkgs.lib.genAttrs [
+    "x86_64-linux"
+    "aarch64-linux"
+    "x86_64-darwin"
+    "aarch64-darwin"
+  ];
+in {
+  devShells = forAllSystems (system: let
+    pkgs = nixpkgs.legacyPackages.${system};
+    # ... rest of config
+  in {
+    default = pkgs.mkShell { ... };
+  });
+};
+```
+
+## Pin nixpkgs for reproducibility
+
+Using `nixos-unstable` can lead to different environments over time. Consider:
+
+- **Using a stable release**: `github:NixOS/nixpkgs/nixos-24.11`
+- **Pinning to a specific commit**: `github:NixOS/nixpkgs/abc123...`
+
+The `flake.lock` file pins the exact version, but updating the lock file will pull newer packages from unstable.
+
 ## PHP-FPM
 
 Manages PHP-FPM lifecycle in development shells with automatic socket configuration.
@@ -20,9 +51,11 @@ Manages PHP-FPM lifecycle in development shells with automatic socket configurat
 ### Configuration
 
 **Required:**
+
 - `PROJECT_HTACCESS_PATH` - Path to .htaccess (only if using htaccess scripts)
 
 **Optional (auto-detected with sensible defaults):**
+
 - `PHP_FPM_BIN` - Path to php-fpm binary (defaults to `php-fpm` in PATH)
 - `PHP_FPM_POOL_NAME` - Pool name (defaults to current directory name)
 - `PHP_FPM_RUNTIME_DIR` - Runtime directory (defaults to `$XDG_RUNTIME_DIR/<pool-name>` on Linux, `$TMPDIR/<pool-name>` on macOS, or `/tmp/<pool-name>` as fallback)
@@ -40,8 +73,10 @@ Manages PHP-FPM lifecycle in development shells with automatic socket configurat
 
 ```nix
 {
+  description = "Development environment with PHP-FPM";
+
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     nix-devshell-helpers = {
       url = "github:pixelsaft/nix-devshell-helpers";
       flake = false;
@@ -49,24 +84,32 @@ Manages PHP-FPM lifecycle in development shells with automatic socket configurat
   };
 
   outputs = { nixpkgs, nix-devshell-helpers, ... }: let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
+    forAllSystems = nixpkgs.lib.genAttrs [
+      "x86_64-linux"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
   in {
-    devShells.${system}.default = pkgs.mkShell {
-      packages = [ pkgs.php83 ];
+    devShells = forAllSystems (system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      default = pkgs.mkShell {
+        packages = [ pkgs.php83 ];
 
-      shellHook = ''
-        # PHP-FPM (explicitly set PHP version, recommended for reproducibility)
-        export PHP_FPM_BIN="${pkgs.php83}/bin/php-fpm"
+        shellHook = ''
+          # PHP-FPM (explicitly set PHP version, recommended for reproducibility)
+          export PHP_FPM_BIN="${pkgs.php83}/bin/php-fpm"
 
-        source ${nix-devshell-helpers}/php-fpm/start-php-fpm.sh
+          source ${nix-devshell-helpers}/php-fpm/start-php-fpm.sh
 
-        cleanup() {
-          source ${nix-devshell-helpers}/php-fpm/stop-php-fpm.sh
-        }
-        trap cleanup EXIT
-      '';
-    };
+          cleanup() {
+            source ${nix-devshell-helpers}/php-fpm/stop-php-fpm.sh
+          }
+          trap cleanup EXIT
+        '';
+      };
+    });
   };
 }
 ```
