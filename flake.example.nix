@@ -40,21 +40,19 @@
         ];
 
         shellHook = ''
-          # PHP-FPM (explicitly set PHP version, recommended for reproducibility)
           export PHP_FPM_BIN="${php}/bin/php-fpm"
           source ${nix-devshell-helpers}/php-fpm/start-php-fpm.sh
 
-          # Apache/.htaccess configuration (optional)
-          export PROJECT_HTACCESS_PATH="$PWD/static/.htaccess"
-          source ${nix-devshell-helpers}/php-fpm/add-php-fpm-handler-to-htaccess.sh
+          # Apache htaccess handler - uncomment to enable
+          # export PROJECT_HTACCESS_PATH="$PWD/static/.htaccess"
+          [ -n "$PROJECT_HTACCESS_PATH" ] && source ${nix-devshell-helpers}/php-fpm/add-php-fpm-handler-to-htaccess.sh
 
           echo "PHP: $(php --version | head -1)"
           echo "Node: $(node --version)"
 
-          # Cleanup on exit
           cleanup() {
             source ${nix-devshell-helpers}/php-fpm/stop-php-fpm.sh
-            source ${nix-devshell-helpers}/php-fpm/remove-php-fpm-handler-from-htaccess.sh
+            [ -n "$PROJECT_HTACCESS_PATH" ] && source ${nix-devshell-helpers}/php-fpm/remove-php-fpm-handler-from-htaccess.sh
           }
           trap cleanup EXIT
         '';

@@ -98,13 +98,16 @@ Manages PHP-FPM lifecycle in development shells with automatic socket configurat
         packages = [ pkgs.php83 ];
 
         shellHook = ''
-          # PHP-FPM (explicitly set PHP version, recommended for reproducibility)
           export PHP_FPM_BIN="${pkgs.php83}/bin/php-fpm"
-
           source ${nix-devshell-helpers}/php-fpm/start-php-fpm.sh
+
+          # Apache htaccess handler - uncomment to enable
+          # export PROJECT_HTACCESS_PATH="$PWD/static/.htaccess"
+          [ -n "$PROJECT_HTACCESS_PATH" ] && source ${nix-devshell-helpers}/php-fpm/add-php-fpm-handler-to-htaccess.sh
 
           cleanup() {
             source ${nix-devshell-helpers}/php-fpm/stop-php-fpm.sh
+            [ -n "$PROJECT_HTACCESS_PATH" ] && source ${nix-devshell-helpers}/php-fpm/remove-php-fpm-handler-from-htaccess.sh
           }
           trap cleanup EXIT
         '';
