@@ -6,7 +6,7 @@
 
 # Optional: Auto-detect with sensible defaults
 PHP_FPM_POOL_NAME="${PHP_FPM_POOL_NAME:-$(basename "$PWD")}"
-PHP_FPM_RUNTIME_DIR="${PHP_FPM_RUNTIME_DIR:-${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$PHP_FPM_POOL_NAME}"
+PHP_FPM_RUNTIME_DIR="${PHP_FPM_RUNTIME_DIR:-${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/$PHP_FPM_POOL_NAME}"
 PHP_FPM_SOCKET_PATH="${PHP_FPM_SOCKET_PATH:-$PHP_FPM_RUNTIME_DIR/php-fpm.sock}"
 
 if [ ! -f "$PROJECT_HTACCESS_PATH" ]; then
